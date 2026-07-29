@@ -3,16 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reflex Trainer - 5-Round Game</title>
+    <title>Reflex Trainer - 5-Dot Aim Game</title>
     <style>
         :root {
             --bg-color: #0f172a;
             --card-bg: #1e293b;
             --text-color: #f8fafc;
-            --accent-wait: #eab308;
-            --accent-ready: #22c55e;
-            --accent-early: #ef4444;
             --accent-neutral: #3b82f6;
+            --accent-ready: #22c55e;
         }
 
         * {
@@ -32,12 +30,14 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
+            overflow: hidden;
         }
 
         .container {
             width: 100%;
             max-width: 600px;
             text-align: center;
+            z-index: 10;
         }
 
         h1 {
@@ -67,76 +67,65 @@
             color: #38bdf8;
         }
 
-        /* Game Interaction Box */
-        .game-box {
+        /* Large Screen-Wide Target Field */
+        .game-field {
             width: 100%;
-            height: 320px;
+            height: 400px;
             border-radius: 16px;
+            position: relative;
+            background-color: var(--card-bg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 24px;
+            border: 2px solid #334155;
+            overflow: hidden;
+        }
+
+        /* Initial Start Screen Overlay inside the box */
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: background-color 0.15s ease, transform 0.1s ease;
-            background-color: var(--card-bg);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background-color: rgba(30, 41, 59, 0.95);
+            z-index: 5;
             padding: 20px;
-            margin-bottom: 24px;
+            transition: opacity 0.2s;
         }
 
-        .game-box:active {
-            transform: scale(0.99);
-        }
-
-        .game-box h2 {
+        .start-screen h2 {
             font-size: 2.2rem;
-            pointer-events: none;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
-        .game-box p {
+        .start-screen p {
             font-size: 1.1rem;
-            opacity: 0.9;
-            pointer-events: none;
+            color: #94a3b8;
         }
 
-        /* 5 Dots Indicator Container */
-        .dots-container {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            pointer-events: none;
-        }
-
-        .dot {
-            width: 24px;
-            height: 24px;
+        /* The Interactive Target Dot */
+        .target-dot {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            transition: background-color 0.1s ease, box-shadow 0.1s ease;
-        }
-
-        /* Active dot styles during sequence */
-        .dot.active {
-            background-color: #ef4444; /* Red lights charging up */
-            box-shadow: 0 0 15px #ef4444;
-            border-color: #f87171;
-        }
-
-        /* Ready state for dots */
-        .state-ready .dot {
             background-color: var(--accent-ready);
-            box-shadow: 0 0 15px var(--accent-ready);
-            border-color: #4ade80;
+            box-shadow: 0 0 20px var(--accent-ready);
+            border: 3px solid #ffffff;
+            position: absolute;
+            cursor: pointer;
+            display: none;
+            transform: translate(-50%, -50%);
+            transition: transform 0.05s ease;
         }
 
-        /* State color variations for the box background */
-        .state-start { background-color: var(--accent-neutral); color: #ffffff; }
-        .state-waiting { background-color: #1e293b; color: #ffffff; } /* Dark during countdown */
-        .state-ready { background-color: var(--accent-ready); color: #000000; }
-        .state-early { background-color: var(--accent-early); color: #ffffff; }
-        .state-result { background-color: var(--accent-neutral); color: #ffffff; }
+        .target-dot:active {
+            transform: translate(-50%, -50%) scale(0.8);
+        }
 
         /* End Results Card */
         .results-card {
@@ -176,16 +165,12 @@
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
+            transition: background-color 0.2s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
         .btn-reset:hover {
             background-color: #2563eb;
-        }
-        
-        .btn-reset:active {
-            transform: scale(0.96);
         }
         
         .hidden {
@@ -201,86 +186,72 @@
 
         <div class="hud">
             <div>Round: <span id="current-round">0</span> / 5</div>
+            <div>Dot: <span id="dot-count">0</span> / 5</div>
             <div>Best: <span id="best-score">-- ms</span></div>
         </div>
 
-        <!-- Interactive Game Box -->
-        <div id="game-box" class="game-box state-start">
-            <!-- 5 Dots Layout -->
-            <div class="dots-container">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
+        <!-- Target Field -->
+        <div id="game-field" class="game-field">
+            <!-- Start / Overlay Panel -->
+            <div id="start-screen" class="start-screen" onclick="startRound()">
+                <h2 id="screen-title">Click to Start</h2>
+                <p id="screen-desc">Pop 5 random dots as fast as you can each round!</p>
             </div>
-            <h2 id="box-title">Click to Start</h2>
-            <p id="box-desc">Complete all 5 rounds to see your score!</p>
+            
+            <!-- Clickable Interactive Target Dot -->
+            <div id="target-dot" class="target-dot"></div>
         </div>
 
         <!-- End of Game Performance Breakdown -->
         <div id="results" class="results-card hidden">
             <h2>Game Complete!</h2>
-            <p id="average-score" style="font-size: 1.3rem; font-weight: bold; margin-bottom: 10px;">Average: -- ms</p>
+            <p id="average-score" style="font-size: 1.3rem; font-weight: bold; margin-bottom: 10px;">Average Round: -- ms</p>
             <ul id="history-list" class="history-list"></ul>
             <button class="btn-reset" onclick="resetGame()">Play Again</button>
         </div>
     </div>
 
     <script>
-        const gameBox = document.getElementById('game-box');
-        const boxTitle = document.getElementById('box-title');
-        const boxDesc = document.getElementById('box-desc');
+        const gameField = document.getElementById('game-field');
+        const startScreen = document.getElementById('start-screen');
+        const screenTitle = document.getElementById('screen-title');
+        const screenDesc = document.getElementById('screen-desc');
+        const targetDot = document.getElementById('target-dot');
+        
         const currentRoundEl = document.getElementById('current-round');
+        const dotCountEl = document.getElementById('dot-count');
         const bestScoreEl = document.getElementById('best-score');
         const resultsEl = document.getElementById('results');
         const historyList = document.getElementById('history-list');
         const averageScoreEl = document.getElementById('average-score');
-        const dots = document.querySelectorAll('.dot');
 
-        // Game Configuration variables
-        let state = 'start'; // start | waiting | ready | early | result
+        // State Tracking Data
         let currentRound = 0;
-        let startTime = 0;
+        let activeDotsPopped = 0;
+        let roundStartTime = 0;
         let roundTimes = [];
-        let dotTimers = []; // Keeps track of interval loops for lighting dots
-        let greenLightTimer = null; 
 
         // Load personal best tracking from storage
-        let bestScore = localStorage.getItem('bestScore') ? parseInt(localStorage.getItem('bestScore')) : null;
+        let bestScore = localStorage.getItem('bestScoreAim') ? parseInt(localStorage.getItem('bestScoreAim')) : null;
         if (bestScore) {
             bestScoreEl.textContent = `${bestScore} ms`;
         }
 
-        // Primary interactive click handler
-        gameBox.addEventListener('click', () => {
-            if (state === 'start' || state === 'result' || state === 'early') {
-                startRound();
-            } else if (state === 'waiting') {
-                triggerEarlyClick();
-            } else if (state === 'ready') {
-                handleSuccessfulClick();
+        // Action when a dot is clicked
+        targetDot.addEventListener('mousedown', (e) => {
+            e.stopPropagation(); // Prevents clicking the background accidentally
+            activeDotsPopped++;
+            dotCountEl.textContent = activeDotsPopped;
+
+            if (activeDotsPopped < 5) {
+                moveDotRandomly();
+            } else {
+                endRound();
             }
         });
 
-        function setUIState(newState) {
-            gameBox.className = `game-box state-${newState}`;
-            state = newState;
-        }
-
-        function clearAllIntervals() {
-            dotTimers.forEach(t => clearTimeout(t));
-            dotTimers = [];
-            clearTimeout(greenLightTimer);
-        }
-
-        function clearDotsColors() {
-            dots.forEach(dot => dot.classList.remove('active'));
-        }
-
         function startRound() {
-            clearAllIntervals();
-            clearDotsColors();
+            startScreen.classList.add('hidden');
             
             if (currentRound >= 5) {
                 currentRound = 0;
@@ -289,27 +260,54 @@
             }
 
             currentRound++;
-            currentRoundEl.textContent = currentRound;
+            activeDotsPopped = 0;
             
-            setUIState('waiting');
-            boxTitle.textContent = "Hold on...";
-            boxDesc.textContent = "Wait for the dots to fill and turn green!";
+            currentRoundEl.textContent = currentRound;
+            dotCountEl.textContent = activeDotsPopped;
 
-            // Light up the 5 dots sequentially (1 every 500ms)
-            for (let i = 0; i < 5; i++) {
-                let timerId = setTimeout(() => {
-                    if (state === 'waiting') {
-                        dots[i].classList.add('active');
-                    }
-                }, (i + 1) * 500);
-                dotTimers.push(timerId);
+            // Start clock tracker for the current round
+            roundStartTime = window.performance.now();
+            moveDotRandomly();
+            targetDot.style.display = 'block';
+        }
+
+        function moveDotRandomly() {
+            // Get constraints of field window minus dot borders
+            const fieldWidth = gameField.clientWidth;
+            const fieldHeight = gameField.clientHeight;
+            
+            // Limit coordinate ranges so dots stay fully inside boundaries
+            const padding = 30; 
+            const randomX = Math.floor(Math.random() * (fieldWidth - padding * 2)) + padding;
+            const randomY = Math.floor(Math.random() * (fieldHeight - padding * 2)) + padding;
+
+            targetDot.style.left = `${randomX}px`;
+            targetDot.style.top = `${randomY}px`;
+        }
+
+        function endRound() {
+            const roundEndTime = window.performance.now();
+            const timeElapsed = Math.round(roundEndTime - roundStartTime);
+            roundTimes.push(timeElapsed);
+
+            targetDot.style.display = 'none';
+            startScreen.classList.remove('hidden');
+
+            if (currentRound < 5) {
+                screenTitle.textContent = `Round ${currentRound} Complete!`;
+                screenDesc.textContent = `Time: ${timeElapsed}ms. Click to start Round ${currentRound + 1}.`;
+            } else {
+                processFinalResults();
             }
+        }
 
-            // After all 5 dots light up, add a random delay between 1 to 3 seconds to turn green
-            const totalSequenceTime = 2500; 
-            const randomDelay = totalSequenceTime + (Math.random() * 2000 + 1000);
+        function processFinalResults() {
+            startScreen.classList.remove('hidden');
+            screenTitle.textContent = "Finished!";
+            screenDesc.textContent = "Review your summary stats down below.";
 
-            greenLightTimer = setTimeout(() => {
-                if (state === 'waiting') {
-                    triggerGreenLight();
-                }
+            const total = roundTimes.reduce((acc, curr) => acc + curr, 0);
+            const average = Math.round(total / roundTimes.length);
+            
+            averageScoreEl.textContent = `Average Round: ${average} ms`;
+historyList.innerHTML = "";roundTimes.forEach((time, index) => {const li = document.createElement('li');li.innerHTML = <span>Round ${index + 1}:</span> <strong>${time} ms</strong>;historyList.appendChild(li);});// Handle All-Time Best Tracking Recordsif (!bestScore || average < bestScore) {bestScore = average;localStorage.setItem('bestScoreAim', bestScore);bestScoreEl.textContent = ${bestScore} ms;}resultsEl.classList.remove('hidden');}function resetGame() {currentRound = 0;activeDotsPopped = 0;roundTimes = [];currentRoundEl.textContent = "0";dotCountEl.textContent = "0";resultsEl.classList.add('hidden');targetDot.style.display = 'none';screenTitle.textContent = "Click to Start";screenDesc.textContent = "Pop 5 random dots as fast as you can each round!";startScreen.classList.remove('hidden');}
