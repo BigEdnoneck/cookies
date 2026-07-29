@@ -310,4 +310,4 @@
             const average = Math.round(total / roundTimes.length);
             
             averageScoreEl.textContent = `Average Round: ${average} ms`;
-historyList.innerHTML = "";roundTimes.forEach((time, index) => {const li = document.createElement('li');li.innerHTML = <span>Round ${index + 1}:</span> <strong>${time} ms</strong>;historyList.appendChild(li);});// Handle All-Time Best Tracking Recordsif (!bestScore || average < bestScore) {bestScore = average;localStorage.setItem('bestScoreAim', bestScore);bestScoreEl.textContent = ${bestScore} ms;}resultsEl.classList.remove('hidden');}function resetGame() {currentRound = 0;activeDotsPopped = 0;roundTimes = [];currentRoundEl.textContent = "0";dotCountEl.textContent = "0";resultsEl.classList.add('hidden');targetDot.style.display = 'none';screenTitle.textContent = "Click to Start";screenDesc.textContent = "Pop 5 random dots as fast as you can each round!";startScreen.classList.remove('hidden');}
+
