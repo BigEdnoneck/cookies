@@ -13,7 +13,7 @@
             --accent-ready: #22c55e;
         }
         
-        * {
+{
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -21,7 +21,7 @@
             user-select: none;
         }
 
-        body {
+ body {
             background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
@@ -33,8 +33,7 @@
             overflow: hidden;
             padding: 15px;
         }
-
-        .container {
+.container {
             width: 100%;
             height: 100%;
             max-width: 1400px;
@@ -43,24 +42,24 @@
             z-index: 10;
         }
 
-        header {
+header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
         }
 
-        h1 {
+ h1 {
             font-size: 1.8rem;
             letter-spacing: 1px;
         }
 
-        p.subtitle {
+p.subtitle {
             color: #94a3b8;
             font-size: 0.9rem;
         }
 
-        .hud {
+.hud {
             display: flex;
             gap: 20px;
             background: var(--card-bg);
@@ -70,11 +69,11 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
         }
 
-        .hud span {
+.hud span {
             color: #38bdf8;
         }
 
-        /* Full Screen Dynamic Target Field */
+/* Full Screen Dynamic Target Field */
         .game-field {
             flex-grow: 1;
             width: 100%;
@@ -87,7 +86,7 @@
             overflow: hidden;
         }
 
-        /* Start Screen Overlay */
+/* Start Screen Overlay */
         .start-screen {
             position: absolute;
             top: 0;
@@ -105,20 +104,20 @@
             text-align: center;
         }
 
-        .start-screen h2 {
+.start-screen h2 {
             font-size: 2.5rem;
             margin-bottom: 10px;
             pointer-events: none;
         }
 
-        .start-screen p {
+.start-screen p {
             font-size: 1.2rem;
             color: #94a3b8;
             pointer-events: none;
             max-width: 500px;
         }
 
-        /* The Interactive Target Dot */
+/* The Interactive Target Dot */
         .target-dot {
             border-radius: 50%;
             background-color: var(--accent-ready);
@@ -131,7 +130,7 @@
             transition: background-color 0.1s, box-shadow 0.1s;
         }
 
-        /* End Results Card Overlay */
+/* End Results Card Overlay */
         .results-card {
             position: absolute;
             top: 50%;
@@ -148,7 +147,7 @@
             text-align: center;
         }
 
-        .results-card h2 {
+.results-card h2 {
             margin-bottom: 15px;
             color: #38bdf8;
             font-size: 2rem;
@@ -162,7 +161,7 @@
             overflow-y: auto;
         }
 
-        .history-list li {
+.history-list li {
             padding: 8px 12px;
             border-bottom: 1px solid #334155;
             display: flex;
@@ -170,7 +169,7 @@
             font-size: 1rem;
         }
 
-        .btn-reset {
+.btn-reset {
             background-color: var(--accent-neutral);
             color: white;
             border: none;
@@ -184,11 +183,11 @@
             width: 100%;
         }
 
-        .btn-reset:hover {
+.btn-reset:hover {
             background-color: #2563eb;
         }
         
-        .hidden {
+.hidden {
             display: none !important;
         }
     </style>
@@ -207,7 +206,6 @@
             <div>Best: <span id="best-score">-- ms</span></div>
         </div>
     </header>
-    
     <!-- Full Screen Target Field -->
     <div id="game-field" class="game-field">
         <!-- Start / Overlay Panel -->
@@ -215,11 +213,9 @@
             <h2 id="screen-title">Click to Start</h2>
             <p id="screen-desc">Level 1: Pop 5 large dots across the entire screen as fast as you can!</p>
         </div>
-        
         <!-- Clickable Interactive Target Dot -->
         <div id="target-dot" class="target-dot"></div>
-
-        <!-- End of Game Performance Breakdown -->
+<!-- End of Game Performance Breakdown -->
         <div id="results" class="results-card hidden">
             <h2>Challenge Complete!</h2>
             <p id="average-score" style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;">Total Average: -- ms</p>
