@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reflex Trainer - 5-Dot Aim Game</title>
+    <title>Reflex Trainer - Full Screen Aim Game</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -27,37 +27,45 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
+            justify-content: flex-start;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            padding: 15px;
         }
 
         .container {
             width: 100%;
-            max-width: 600px;
-            text-align: center;
+            height: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
             z-index: 10;
         }
 
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 8px;
+            font-size: 1.8rem;
             letter-spacing: 1px;
         }
 
         p.subtitle {
             color: #94a3b8;
-            margin-bottom: 25px;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .hud {
             display: flex;
-            justify-content: space-between;
+            gap: 20px;
             background: var(--card-bg);
-            padding: 15px 25px;
+            padding: 10px 20px;
             border-radius: 12px;
-            margin-bottom: 20px;
             font-weight: 600;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
         }
@@ -66,15 +74,15 @@
             color: #38bdf8;
         }
 
-        /* Large Screen-Wide Target Field */
+        /* Full Screen Dynamic Target Field */
         .game-field {
+            flex-grow: 1;
             width: 100%;
-            height: 400px;
             border-radius: 16px;
             position: relative;
             background-color: var(--card-bg);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            margin-bottom: 24px;
+            margin-bottom: 15px;
             border: 2px solid #334155;
             overflow: hidden;
         }
@@ -91,27 +99,27 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            background-color: #1e293b;
+            background-color: rgba(30, 41, 59, 0.95);
             z-index: 5;
             padding: 20px;
+            text-align: center;
         }
 
         .start-screen h2 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             margin-bottom: 10px;
             pointer-events: none;
         }
 
         .start-screen p {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: #94a3b8;
             pointer-events: none;
+            max-width: 500px;
         }
 
         /* The Interactive Target Dot */
         .target-dot {
-            width: 40px;
-            height: 40px;
             border-radius: 50%;
             background-color: var(--accent-ready);
             box-shadow: 0 0 20px var(--accent-ready);
@@ -120,35 +128,46 @@
             cursor: pointer;
             display: none;
             transform: translate(-50%, -50%);
+            transition: background-color 0.1s, box-shadow 0.1s;
         }
 
-        /* End Results Card */
+        /* End Results Card Overlay */
         .results-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: var(--card-bg);
             border-radius: 16px;
             padding: 30px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            margin-top: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            border: 2px solid #334155;
+            z-index: 20;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
         }
 
         .results-card h2 {
             margin-bottom: 15px;
             color: #38bdf8;
-            font-size: 1.8rem;
+            font-size: 2rem;
         }
 
         .history-list {
             list-style: none;
             margin: 20px 0;
             text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .history-list li {
-            padding: 10px 14px;
+            padding: 8px 12px;
             border-bottom: 1px solid #334155;
             display: flex;
             justify-content: space-between;
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
         .btn-reset {
@@ -162,6 +181,7 @@
             cursor: pointer;
             transition: background-color 0.2s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            width: 100%;
         }
 
         .btn-reset:hover {
@@ -176,33 +196,36 @@
 <body>
 
 <div class="container">
-    <h1>⚡ Reflex Trainer</h1>
-    <p class="subtitle">By: EDWARD</p>
-
-    <div class="hud">
-        <div>Round: <span id="current-round">0</span> / 5</div>
-        <div>Dot: <span id="dot-count">0</span> / 5</div>
-        <div>Best: <span id="best-score">-- ms</span></div>
-    </div>
+    <header>
+        <div>
+            <h1>⚡ Reflex Trainer</h1>
+            <p class="subtitle">By: EDWARD</p>
+        </div>
+        <div class="hud">
+            <div>Level: <span id="current-level">1</span> / 5</div>
+            <div>Dot: <span id="dot-count">0</span> / <span id="dot-target">5</span></div>
+            <div>Best: <span id="best-score">-- ms</span></div>
+        </div>
+    </header>
     
-    <!-- Target Field -->
+    <!-- Full Screen Target Field -->
     <div id="game-field" class="game-field">
         <!-- Start / Overlay Panel -->
         <div id="start-screen" class="start-screen">
             <h2 id="screen-title">Click to Start</h2>
-            <p id="screen-desc">Pop 5 random dots as fast as you can each round!</p>
+            <p id="screen-desc">Level 1: Pop 5 large dots across the entire screen as fast as you can!</p>
         </div>
         
         <!-- Clickable Interactive Target Dot -->
         <div id="target-dot" class="target-dot"></div>
-    </div>
 
-    <!-- End of Game Performance Breakdown -->
-    <div id="results" class="results-card hidden">
-        <h2>Game Complete!</h2>
-        <p id="average-score" style="font-size: 1.3rem; font-weight: bold; margin-bottom: 10px;">Average Round: -- ms</p>
-        <ul id="history-list" class="history-list"></ul>
-        <button class="btn-reset" onclick="resetGame()">Play Again</button>
+        <!-- End of Game Performance Breakdown -->
+        <div id="results" class="results-card hidden">
+            <h2>Challenge Complete!</h2>
+            <p id="average-score" style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;">Total Average: -- ms</p>
+            <ul id="history-list" class="history-list"></ul>
+            <button class="btn-reset" onclick="resetGame()">Play Again</button>
+        </div>
     </div>
 </div>
 
@@ -213,60 +236,68 @@
     const targetDot = document.getElementById('target-dot');
     const gameField = document.getElementById('game-field');
     
-    const currentRoundEl = document.getElementById('current-round');
+    const currentLevelEl = document.getElementById('current-level');
     const dotCountEl = document.getElementById('dot-count');
+    const dotTargetEl = document.getElementById('dot-target');
     const bestScoreEl = document.getElementById('best-score');
     const resultsEl = document.getElementById('results');
     const historyList = document.getElementById('history-list');
     const averageScoreEl = document.getElementById('average-score');
 
-    // State Tracking Data
-    let currentRound = 0;
+    // Game Configuration per Level (Gets progressively harder)
+    const levels = [
+        { level: 1, dots: 5, size: 60, name: "Easy (Large Dots)" },
+        { level: 2, dots: 8, size: 45, name: "Medium (More Targets)" },
+        { level: 3, dots: 10, size: 35, name: "Hard (Smaller Dots)" },
+        { level: 4, dots: 12, size: 25, name: "Expert (Tiny Dots)" },
+        { level: 5, dots: 15, size: 20, name: "Master (Micro Targets)" }
+    ];
+
+    let currentLevelIndex = 0;
     let activeDotsPopped = 0;
-    let roundStartTime = 0;
-    let roundTimes = [];
+    let levelStartTime = 0;
+    let levelTimes = [];
 
     // Load personal best tracking from storage
-    let bestScore = localStorage.getItem('bestScoreAim') ? parseInt(localStorage.getItem('bestScoreAim')) : null;
+    let bestScore = localStorage.getItem('bestScoreAimFull') ? parseInt(localStorage.getItem('bestScoreAimFull')) : null;
     if (bestScore) {
         bestScoreEl.textContent = `${bestScore} ms`;
     }
 
-    // Clicking the start overlay triggers the round
+    // Clicking the start overlay triggers the level
     startScreen.addEventListener('click', () => {
-        startRound();
+        startLevel();
     });
 
     // Action when a dot is clicked
     targetDot.addEventListener('mousedown', (e) => {
-        e.stopPropagation(); // Stop click from filtering to background
+        e.stopPropagation(); 
         activeDotsPopped++;
         dotCountEl.textContent = activeDotsPopped;
 
-        if (activeDotsPopped < 5) {
+        const currentLevelData = levels[currentLevelIndex];
+        if (activeDotsPopped < currentLevelData.dots) {
             moveDotRandomly();
         } else {
-            endRound();
+            endLevel();
         }
     });
 
-    function startRound() {
+    function startLevel() {
         startScreen.classList.add('hidden');
         
-        if (currentRound >= 5) {
-            currentRound = 0;
-            roundTimes = [];
-            resultsEl.classList.add('hidden');
-        }
-
-        currentRound++;
+        const currentLevelData = levels[currentLevelIndex];
+        currentLevelEl.textContent = currentLevelData.level;
+        dotTargetEl.textContent = currentLevelData.dots;
         activeDotsPopped = 0;
-        
-        currentRoundEl.textContent = currentRound;
         dotCountEl.textContent = activeDotsPopped;
 
-        // Start clock tracker for the current round
-        roundStartTime = window.performance.now();
+        // Resize dot based on difficulty level
+        targetDot.style.width = `${currentLevelData.size}px`;
+        targetDot.style.height = `${currentLevelData.size}px`;
+
+        // Start clock tracker for the current level
+        levelStartTime = window.performance.now();
         moveDotRandomly();
         targetDot.style.display = 'block';
     }
@@ -274,9 +305,10 @@
     function moveDotRandomly() {
         const fieldWidth = gameField.clientWidth;
         const fieldHeight = gameField.clientHeight;
+        const currentLevelData = levels[currentLevelIndex];
         
-        // Keep dots safely 40px away from the edges
-        const padding = 40; 
+        // Keep dots safely inside bounds based on their size
+        const padding = currentLevelData.size + 10; 
         const randomX = Math.floor(Math.random() * (fieldWidth - padding * 2)) + padding;
         const randomY = Math.floor(Math.random() * (fieldHeight - padding * 2)) + padding;
 
@@ -284,41 +316,39 @@
         targetDot.style.top = `${randomY}px`;
     }
 
-    function endRound() {
-        const roundEndTime = window.performance.now();
-        const timeElapsed = Math.round(roundEndTime - roundStartTime);
-        roundTimes.push(timeElapsed);
+    function endLevel() {
+        const levelEndTime = window.performance.now();
+        const timeElapsed = Math.round(levelEndTime - levelStartTime);
+        levelTimes.push({ level: levels[currentLevelIndex].name, time: timeElapsed });
 
         targetDot.style.display = 'none';
-        startScreen.classList.remove('hidden');
+        currentLevelIndex++;
 
-        if (currentRound < 5) {
-            screenTitle.textContent = `Round ${currentRound} Complete!`;
-            screenDesc.textContent = `Time: ${timeElapsed}ms. Click here to start Round ${currentRound + 1}.`;
+        if (currentLevelIndex < levels.length) {
+            startScreen.classList.remove('hidden');
+            screenTitle.textContent = `Level ${currentLevelIndex} Complete!`;
+            screenDesc.textContent = `Time: ${timeElapsed}ms. Click anywhere to start Level ${currentLevelIndex + 1}: ${levels[currentLevelIndex].name}`;
         } else {
             processFinalResults();
         }
     }
 
     function processFinalResults() {
-        screenTitle.textContent = "Finished!";
-        screenDesc.textContent = "See your summary stats down below.";
-
-        const total = roundTimes.reduce((acc, curr) => acc + curr, 0);
-        const average = Math.round(total / roundTimes.length);
+        const total = levelTimes.reduce((acc, curr) => acc + curr.time, 0);
+        const average = Math.round(total / levelTimes.length);
         
-        averageScoreEl.textContent = `Average Round: ${average} ms`;
+        averageScoreEl.textContent = `Average Time per Level: ${average} ms`;
         historyList.innerHTML = "";
 
-        roundTimes.forEach((time, index) => {
+        levelTimes.forEach((item, index) => {
             const li = document.createElement('li');
-            li.innerHTML = `<span>Round ${index + 1}:</span> <strong>${time} ms</strong>`;
+            li.innerHTML = `<span>Lvl ${index + 1} (${item.level}):</span> <strong>${item.time} ms</strong>`;
             historyList.appendChild(li);
         });
 
         if (!bestScore || average < bestScore) {
             bestScore = average;
-            localStorage.setItem('bestScoreAim', bestScore);
+            localStorage.setItem('bestScoreAimFull', bestScore);
             bestScoreEl.textContent = `${bestScore} ms`;
         }
 
@@ -326,15 +356,15 @@
     }
 
     function resetGame() {
-        currentRound = 0;
+        currentLevelIndex = 0;
         activeDotsPopped = 0;
-        roundTimes = [];
-        currentRoundEl.textContent = "0";
+        levelTimes = [];
+        currentLevelEl.textContent = "1";
         dotCountEl.textContent = "0";
         resultsEl.classList.add('hidden');
         targetDot.style.display = 'none';
         screenTitle.textContent = "Click to Start";
-        screenDesc.textContent = "Pop 5 random dots as fast as you can each round!";
+        screenDesc.textContent = "Level 1: Pop 5 large dots across the entire screen as fast as you can!";
         startScreen.classList.remove('hidden');
     }
 </script>
