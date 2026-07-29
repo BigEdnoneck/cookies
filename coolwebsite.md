@@ -30,7 +30,6 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
-            overflow: hidden;
         }
 
         .container {
@@ -80,7 +79,7 @@
             overflow: hidden;
         }
 
-        /* Initial Start Screen Overlay inside the box */
+        /* Start Screen Overlay */
         .start-screen {
             position: absolute;
             top: 0;
@@ -92,20 +91,21 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            background-color: rgba(30, 41, 59, 0.95);
+            background-color: #1e293b;
             z-index: 5;
             padding: 20px;
-            transition: opacity 0.2s;
         }
 
         .start-screen h2 {
             font-size: 2.2rem;
             margin-bottom: 10px;
+            pointer-events: none;
         }
 
         .start-screen p {
             font-size: 1.1rem;
             color: #94a3b8;
+            pointer-events: none;
         }
 
         /* The Interactive Target Dot */
@@ -120,11 +120,6 @@
             cursor: pointer;
             display: none;
             transform: translate(-50%, -50%);
-            transition: transform 0.05s ease;
-        }
-
-        .target-dot:active {
-            transform: translate(-50%, -50%) scale(0.8);
         }
 
         /* End Results Card */
@@ -193,7 +188,7 @@
         <!-- Target Field -->
         <div id="game-field" class="game-field">
             <!-- Start / Overlay Panel -->
-            <div id="start-screen" class="start-screen" onclick="startRound()">
+            <div id="start-screen" class="start-screen">
                 <h2 id="screen-title">Click to Start</h2>
                 <p id="screen-desc">Pop 5 random dots as fast as you can each round!</p>
             </div>
@@ -212,11 +207,11 @@
     </div>
 
     <script>
-        const gameField = document.getElementById('game-field');
         const startScreen = document.getElementById('start-screen');
         const screenTitle = document.getElementById('screen-title');
         const screenDesc = document.getElementById('screen-desc');
         const targetDot = document.getElementById('target-dot');
+        const gameField = document.getElementById('game-field');
         
         const currentRoundEl = document.getElementById('current-round');
         const dotCountEl = document.getElementById('dot-count');
@@ -237,9 +232,14 @@
             bestScoreEl.textContent = `${bestScore} ms`;
         }
 
+        // Clicking the start overlay triggers the round
+        startScreen.addEventListener('click', () => {
+            startRound();
+        });
+
         // Action when a dot is clicked
         targetDot.addEventListener('mousedown', (e) => {
-            e.stopPropagation(); // Prevents clicking the background accidentally
+            e.stopPropagation(); // Stop click from filtering to background
             activeDotsPopped++;
             dotCountEl.textContent = activeDotsPopped;
 
@@ -272,12 +272,11 @@
         }
 
         function moveDotRandomly() {
-            // Get constraints of field window minus dot borders
             const fieldWidth = gameField.clientWidth;
             const fieldHeight = gameField.clientHeight;
             
-            // Limit coordinate ranges so dots stay fully inside boundaries
-            const padding = 30; 
+            // Keep dots safely 40px away from the edges
+            const padding = 40; 
             const randomX = Math.floor(Math.random() * (fieldWidth - padding * 2)) + padding;
             const randomY = Math.floor(Math.random() * (fieldHeight - padding * 2)) + padding;
 
@@ -295,19 +294,21 @@
 
             if (currentRound < 5) {
                 screenTitle.textContent = `Round ${currentRound} Complete!`;
-                screenDesc.textContent = `Time: ${timeElapsed}ms. Click to start Round ${currentRound + 1}.`;
+                screenDesc.textContent = `Time: ${timeElapsed}ms. Click here to start Round ${currentRound + 1}.`;
             } else {
                 processFinalResults();
             }
         }
 
         function processFinalResults() {
-            startScreen.classList.remove('hidden');
             screenTitle.textContent = "Finished!";
-            screenDesc.textContent = "Review your summary stats down below.";
+            screenDesc.textContent = "See your summary stats down below.";
 
             const total = roundTimes.reduce((acc, curr) => acc + curr, 0);
             const average = Math.round(total / roundTimes.length);
             
             averageScoreEl.textContent = `Average Round: ${average} ms`;
+            historyList.innerHTML = "";
 
+            roundTimes.forEach((time, index) => {
+                const li = document.createElement('li');
