@@ -3,361 +3,322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reflex Trainer - Full Screen Aim Game</title>
+    <title>JS Guitar Hero</title>
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-color: #f8fafc;
-            --accent-neutral: #3b82f6;
-            --accent-ready: #22c55e;
-        }
-        
-*{
-            box-sizing: border-box;
+        body {
             margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            user-select: none;
-        }
-
-body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background: #111;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            width: 100%;
-            overflow-x: hidden;
-            padding: 15px;
-        }
-
-.container {
-            width: 100%;
-            max-width: 1400px;
-            height: calc(100vh - 30px);
-            display: flex;
-            flex-direction: column;
-            z-index: 10;
-        }
-
-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            flex-shrink: 0;
-        }
-
-h1 {
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-        }
-
-p.subtitle {
-            color: #94a3b8;
-            font-size: 0.9rem;
-        }
-
-.hud {
-            display: flex;
-            gap: 20px;
-            background: var(--card-bg);
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        }
-
-.hud span {
-            color: #38bdf8;
-        }
-
-/* Full Screen Dynamic Target Field */
-        .game-field {
-            flex-grow: 1;
-            width: 100%;
-            border-radius: 16px;
-            position: relative;
-            background-color: var(--card-bg);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            margin-bottom: 15px;
-            border: 2px solid #334155;
+            justify-content: center;
+            height: 100vh;
             overflow: hidden;
         }
 
-/* Start Screen Overlay */
-        .start-screen {
+#game-container {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            background: #1a1a1a;
+            border: 4px solid #333;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+/* The fretboard lanes */
+        .lane {
+            position: absolute;
+            top: 0;
+            width: 80px;
+            height: 100%;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .lane:nth-child(1) { left: 0; background: rgba(255, 0, 0, 0.05); }
+        .lane:nth-child(2) { left: 80px; background: rgba(0, 255, 0, 0.05); }
+        .lane:nth-child(3) { left: 160px; background: rgba(0, 0, 255, 0.05); }
+        .lane:nth-child(4) { left: 240px; background: rgba(255, 255, 0, 0.05); }
+        .lane:nth-child(5) { left: 320px; background: rgba(255, 165, 0, 0.05); border-right: none; }
+
+/* Hit target zone at the bottom */
+        .hit-line {
+            position: absolute;
+            bottom: 80px;
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+ .target-key {
+            position: absolute;
+            bottom: 20px;
+            width: 60px;
+            height: 50px;
+            margin-left: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        #t-0 { left: 0; background: #ff4757; }
+        #t-1 { left: 80px; background: #2ed573; }
+        #t-2 { left: 160px; background: #1e90ff; }
+        #t-3 { left: 240px; background: #ffa502; }
+        #t-4 { left: 320px; background: #9b59b6; }
+
+/* Falling Notes */
+        .note {
+            position: absolute;
+            width: 60px;
+            height: 20px;
+            margin-left: 10px;
+            border-radius: 4px;
+        }
+        .note-0 { background: #ff4757; }
+        .note-1 { background: #2ed573; }
+        .note-2 { background: #1e90ff; }
+        .note-3 { background: #ffa502; }
+        .note-4 { background: #9b59b6; }
+
+/* UI Overlays */
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+#menu, #game-over {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background: rgba(0,0,0,0.85);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            background-color: rgba(30, 41, 59, 0.95);
-            z-index: 5;
-            padding: 20px;
-            text-align: center;
-        }
-
-.start-screen h2 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            pointer-events: none;
-        }
-
-.start-screen p {
-            font-size: 1.2rem;
-            color: #94a3b8;
-            pointer-events: none;
-            max-width: 500px;
-        }
-
-/* The Interactive Target Dot */
-        .target-dot {
-            border-radius: 50%;
-            background-color: var(--accent-ready);
-            box-shadow: 0 0 20px var(--accent-ready);
-            border: 3px solid #ffffff;
-            position: absolute;
-            cursor: pointer;
-            display: none;
-            transform: translate(-50%, -50%);
-            transition: background-color 0.1s, box-shadow 0.1s;
-        }
-
-/* End Results Card Overlay */
-        .results-card {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
-            border: 2px solid #334155;
             z-index: 20;
-            width: 90%;
-            max-width: 450px;
-            text-align: center;
         }
 
-.results-card h2 {
-            margin-bottom: 15px;
-            color: #38bdf8;
-            font-size: 2rem;
-        }
-
-.history-list {
-            list-style: none;
-            margin: 20px 0;
-            text-align: left;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-.history-list li {
-            padding: 8px 12px;
-            border-bottom: 1px solid #334155;
-            display: flex;
-            justify-content: space-between;
-            font-size: 1rem;
-        }
-
-.btn-reset {
-            background-color: var(--accent-neutral);
-            color: white;
-            border: none;
-            padding: 12px 28px;
-            font-size: 1rem;
+button {
+            padding: 12px 24px;
+            font-size: 18px;
             font-weight: bold;
-            border-radius: 8px;
+            background: #2ed573;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            width: 100%;
+            transition: background 0.2s;
         }
+        button:hover { background: #26af5f; }
 
-.btn-reset:hover {
-            background-color: #2563eb;
-        }
+.hidden { display: none !important; }
         
-.hidden {
-            display: none !important;
+#feedback {
+            position: absolute;
+            top: 40%;
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            transition: opacity 0.3s;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <div>
-            <h1>⚡ Reflex Trainer</h1>
-            <p class="subtitle">By: EDWARD</p>
+<div id="game-container">
+        <!-- UI Overlay -->
+        <div id="ui">
+            <div>Score: <span id="score">0</span></div>
+            <div>Streak: <span id="streak">0</span>x</div>
         </div>
-        <div class="hud">
-            <div>Level: <span id="current-level">1</span> / 5</div>
-            <div>Dot: <span id="dot-count">0</span> / <span id="dot-target">5</span></div>
-            <div>Best: <span id="best-score">-- ms</span></div>
+
+        <div id="feedback"></div>
+
+<!-- Fretboard Lanes -->
+<div class="lane"></div>
+        <div class="lane"></div>
+        <div class="lane"></div>
+        <div class="lane"></div>
+        <div class="lane"></div>
+
+        <div class="hit-line"></div>
+<!-- Target Keys indicators -->
+<div class="target-key" id="t-0">A</div>
+        <div class="target-key" id="t-1">S</div>
+        <div class="target-key" id="t-2">D</div>
+        <div class="target-key" id="t-3">F</div>
+        <div class="target-key" id="t-4">G</div>
+
+        <!-- Main Menu Overlay -->
+<div id="menu">
+            <h1>JS Guitar Hero</h1>
+            <p>Keys: <strong>A S D F G</strong></p>
+            <button onclick="startGame()">Play Game</button>
         </div>
-    </header>
-    <!-- Full Screen Target Field -->
-    <div id="game-field" class="game-field">
-        <!-- Start / Overlay Panel -->
-        <div id="start-screen" class="start-screen">
-            <h2 id="screen-title">Click to Start</h2>
-            <p id="screen-desc">Level 1: Pop 5 large dots across the entire screen as fast as you can!</p>
-        </div>
-         <!-- Clickable Interactive Target Dot -->
-        <div id="target-dot" class="target-dot"></div>
-<!-- End of Game Performance Breakdown -->
-        <div id="results" class="results-card hidden">
-            <h2>Challenge Complete!</h2>
-            <p id="average-score" style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;">Total Average: -- ms</p>
-            <ul id="history-list" class="history-list"></ul>
-            <button class="btn-reset" onclick="resetGame()">Play Again</button>
+        <!-- Game Over Overlay -->
+<div id="game-over" class="hidden">
+            <h1>Song Finished!</h1>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <button onclick="startGame()">Play Again</button>
         </div>
     </div>
-</div>
 
 <script>
-    const startScreen = document.getElementById('start-screen');
-    const screenTitle = document.getElementById('screen-title');
-    const screenDesc = document.getElementById('screen-desc');
-    const targetDot = document.getElementById('target-dot');
-    const gameField = document.getElementById('game-field');
+    const lanes = [0, 1, 2, 3, 4];
+    const keyMap = { 'KeyA': 0, 'KeyS': 1, 'KeyD': 2, 'KeyF': 3, 'KeyG': 4 };
     
-    const currentLevelEl = document.getElementById('current-level');
-    const dotCountEl = document.getElementById('dot-count');
-    const dotTargetEl = document.getElementById('dot-target');
-    const bestScoreEl = document.getElementById('best-score');
-    const resultsEl = document.getElementById('results');
-    const historyList = document.getElementById('history-list');
-    const averageScoreEl = document.getElementById('average-score');
+    let score = 0;
+    let streak = 0;
+    let notes = [];
+    let gameActive = false;
+    let songTimer = 0;
+    let noteSpawnTimer = 0;
+    const noteSpeed = 4; // Pixels per frame
 
-    const levels = [
-        { level: 1, dots: 5, size: 60, name: "Easy (Large Dots)" },
-        { level: 2, dots: 8, size: 45, name: "Medium (More Targets)" },
-        { level: 3, dots: 10, size: 35, name: "Hard (Smaller Dots)" },
-        { level: 4, dots: 12, size: 25, name: "Expert (Tiny Dots)" },
-        { level: 5, dots: 15, size: 20, name: "Master (Micro Targets)" }
-    ];
-
-    let currentLevelIndex = 0;
-    let activeDotsPopped = 0;
-    let levelStartTime = 0;
-    let levelTimes = [];
-
-    let bestScore = localStorage.getItem('bestScoreAimFull') ? parseInt(localStorage.getItem('bestScoreAimFull')) : null;
-    if (bestScore) {
-        bestScoreEl.textContent = `${bestScore} ms`;
-    }
-
-    startScreen.addEventListener('click', () => {
-        startLevel();
-    });
-
-    targetDot.addEventListener('mousedown', (e) => {
-        e.stopPropagation(); 
-        activeDotsPopped++;
-        dotCountEl.textContent = activeDotsPopped;
-
-        const currentLevelData = levels[currentLevelIndex];
-        if (activeDotsPopped < currentLevelData.dots) {
-            moveDotRandomly();
-        } else {
-            endLevel();
-        }
-    });
-
-    function startLevel() {
-        startScreen.classList.add('hidden');
-        
-        const currentLevelData = levels[currentLevelIndex];
-        currentLevelEl.textContent = currentLevelData.level;
-        dotTargetEl.textContent = currentLevelData.dots;
-        activeDotsPopped = 0;
-        dotCountEl.textContent = activeDotsPopped;
-
-        targetDot.style.width = `${currentLevelData.size}px`;
-        targetDot.style.height = `${currentLevelData.size}px`;
-
-        levelStartTime = window.performance.now();
-        moveDotRandomly();
-        targetDot.style.display = 'block';
-    }
-
-    function moveDotRandomly() {
-        const fieldWidth = gameField.clientWidth;
-        const fieldHeight = gameField.clientHeight;
-        const currentLevelData = levels[currentLevelIndex];
-        
-        const padding = currentLevelData.size + 10; 
-        const randomX = Math.floor(Math.random() * (fieldWidth - padding * 2)) + padding;
-        const randomY = Math.floor(Math.random() * (fieldHeight - padding * 2)) + padding;
-
-        targetDot.style.left = `${randomX}px`;
-        targetDot.style.top = `${randomY}px`;
-    }
-
-    function endLevel() {
-        const levelEndTime = window.performance.now();
-        const timeElapsed = Math.round(levelEndTime - levelStartTime);
-        levelTimes.push({ level: levels[currentLevelIndex].name, time: timeElapsed });
-
-        targetDot.style.display = 'none';
-        currentLevelIndex++;
-
-        if (currentLevelIndex < levels.length) {
-            startScreen.classList.remove('hidden');
-            screenTitle.textContent = `Level ${currentLevelIndex} Complete!`;
-            screenDesc.textContent = `Time: ${timeElapsed}ms. Click anywhere to start Level ${currentLevelIndex + 1}: ${levels[currentLevelIndex].name}`;
-        } else {
-            processFinalResults();
+    // Procedural track generation pattern
+    const songNotes = [];
+    function generateSong() {
+        for (let i = 100; i < 3000; i += 40) {
+            if (Math.random() > 0.3) {
+                let lane = Math.floor(Math.random() * 5);
+                songNotes.push({ time: i, lane: lane, hit: false });
+            }
         }
     }
 
-    function processFinalResults() {
-        const total = levelTimes.reduce((acc, curr) => acc + curr.time, 0);
-        const average = Math.round(total / levelTimes.length);
-        
-        averageScoreEl.textContent = `Average Time per Level: ${average} ms`;
-        historyList.innerHTML = "";
+    const container = document.getElementById('game-container');
+    const scoreEl = document.getElementById('score');
+    const streakEl = document.getElementById('streak');
+    const menuEl = document.getElementById('menu');
+    const gameOverEl = document.getElementById('game-over');
+    const feedbackEl = document.getElementById('feedback');
 
-        levelTimes.forEach((item, index) => {
-            const li = document.createElement('li');
-            li.innerHTML = `<span>Lvl ${index + 1} (${item.level}):</span> <strong>${item.time} ms</strong>`;
-            historyList.appendChild(li);
+    function startGame() {
+        menuEl.classList.add('hidden');
+        gameOverEl.classList.add('hidden');
+        container.querySelectorAll('.note').forEach(n => n.remove());
+        
+        score = 0;
+        streak = 0;
+        songTimer = 0;
+        notes = [];
+        generateSong();
+        scoreEl.innerText = score;
+        streakEl.innerText = streak;
+        gameActive = true;
+        
+        requestAnimationFrame(gameLoop);
+    }
+
+    function showFeedback(text, color) {
+        feedbackEl.innerText = text;
+        feedbackEl.style.color = color;
+        feedbackEl.style.opacity = 1;
+        setTimeout(() => { feedbackEl.style.opacity = 0; }, 300);
+    }
+
+    window.addEventListener('keydown', (e) => {
+        if (!gameActive) return;
+        if (keyMap.hasOwnProperty(e.code)) {
+            let lane = keyMap[e.code];
+            checkHit(lane);
+        }
+    });
+
+    function checkHit(lane) {
+        let hitZoneY = 500; // Hit line position from top
+        let threshold = 35; // Pixel tolerance
+
+        for (let note of notes) {
+            if (note.lane === lane && !note.hit) {
+                let distance = Math.abs(note.y - hitZoneY);
+                if (distance < threshold) {
+                    note.hit = true;
+                    note.element.remove();
+                    
+                    if (distance < 15) {
+                        score += 100;
+                        showFeedback("PERFECT!", "#2ed573");
+                    } else {
+                        score += 50;
+                        showFeedback("GOOD", "#1e90ff");
+                    }
+                    streak++;
+                    scoreEl.innerText = score;
+                    streakEl.innerText = streak;
+                    return;
+                }
+            }
+        }
+        // Miss hit penalty
+        streak = 0;
+        streakEl.innerText = streak;
+        showFeedback("MISS", "#ff4757");
+    }
+
+    function gameLoop() {
+        if (!gameActive) return;
+
+        songTimer++;
+
+        // Spawn notes from song sequence
+        songNotes.forEach(n => {
+            if (n.time === songTimer) {
+                let el = document.createElement('div');
+                el.classList.add('note', `note-${n.lane}`);
+                el.style.left = (n.lane * 80) + 'px';
+                el.style.top = '-20px';
+                container.appendChild(el);
+                
+                notes.push({ lane: n.lane, y: -20, element: el, hit: false });
+            }
         });
 
-        if (!bestScore || average < bestScore) {
-            bestScore = average;
-            localStorage.setItem('bestScoreAimFull', bestScore);
-            bestScoreEl.textContent = `${bestScore} ms`;
+        // Update note positions
+        for (let i = notes.length - 1; i >= 0; i--) {
+            let note = notes[i];
+            if (note.hit) continue;
+
+            note.y += noteSpeed;
+            note.element.style.top = note.y + 'px';
+
+            // Check if note missed bottom boundary
+            if (note.y > 600) {
+                note.element.remove();
+                notes.splice(i, 1);
+                streak = 0;
+                streakEl.innerText = streak;
+            }
         }
 
-        resultsEl.classList.remove('hidden');
-    }
+        // End condition check
+        if (songTimer > 3200 && notes.length === 0) {
+            gameActive = false;
+            document.getElementById('final-score').innerText = score;
+            gameOverEl.classList.remove('hidden');
+            return;
+        }
 
-    function resetGame() {
-        currentLevelIndex = 0;
-        activeDotsPopped = 0;
-        levelTimes = [];
-        currentLevelEl.textContent = "1";
-        dotCountEl.textContent = "0";
-        resultsEl.classList.add('hidden');
-        targetDot.style.display = 'none';
-        screenTitle.textContent = "Click to Start";
-        screenDesc.textContent = "Level 1: Pop 5 large dots across the entire screen as fast as you can!";
-        startScreen.classList.remove('hidden');
+        requestAnimationFrame(gameLoop);
     }
 </script>
+
 </body>
 </html>
