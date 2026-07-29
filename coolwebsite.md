@@ -13,7 +13,7 @@
             --accent-ready: #22c55e;
         }
         
-{
+*{
             box-sizing: border-box;
             margin: 0;
             padding: 0;
@@ -21,22 +21,23 @@
             user-select: none;
         }
 
- body {
+body {
             background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
             padding: 15px;
         }
+
 .container {
             width: 100%;
-            height: 100%;
             max-width: 1400px;
+            height: calc(100vh - 30px);
             display: flex;
             flex-direction: column;
             z-index: 10;
@@ -47,9 +48,10 @@ header {
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
+            flex-shrink: 0;
         }
 
- h1 {
+h1 {
             font-size: 1.8rem;
             letter-spacing: 1px;
         }
@@ -153,7 +155,7 @@ p.subtitle {
             font-size: 2rem;
         }
 
-        .history-list {
+.history-list {
             list-style: none;
             margin: 20px 0;
             text-align: left;
@@ -213,7 +215,7 @@ p.subtitle {
             <h2 id="screen-title">Click to Start</h2>
             <p id="screen-desc">Level 1: Pop 5 large dots across the entire screen as fast as you can!</p>
         </div>
-        <!-- Clickable Interactive Target Dot -->
+         <!-- Clickable Interactive Target Dot -->
         <div id="target-dot" class="target-dot"></div>
 <!-- End of Game Performance Breakdown -->
         <div id="results" class="results-card hidden">
@@ -240,7 +242,6 @@ p.subtitle {
     const historyList = document.getElementById('history-list');
     const averageScoreEl = document.getElementById('average-score');
 
-    // Game Configuration per Level (Gets progressively harder)
     const levels = [
         { level: 1, dots: 5, size: 60, name: "Easy (Large Dots)" },
         { level: 2, dots: 8, size: 45, name: "Medium (More Targets)" },
@@ -254,18 +255,15 @@ p.subtitle {
     let levelStartTime = 0;
     let levelTimes = [];
 
-    // Load personal best tracking from storage
     let bestScore = localStorage.getItem('bestScoreAimFull') ? parseInt(localStorage.getItem('bestScoreAimFull')) : null;
     if (bestScore) {
         bestScoreEl.textContent = `${bestScore} ms`;
     }
 
-    // Clicking the start overlay triggers the level
     startScreen.addEventListener('click', () => {
         startLevel();
     });
 
-    // Action when a dot is clicked
     targetDot.addEventListener('mousedown', (e) => {
         e.stopPropagation(); 
         activeDotsPopped++;
@@ -288,11 +286,9 @@ p.subtitle {
         activeDotsPopped = 0;
         dotCountEl.textContent = activeDotsPopped;
 
-        // Resize dot based on difficulty level
         targetDot.style.width = `${currentLevelData.size}px`;
         targetDot.style.height = `${currentLevelData.size}px`;
 
-        // Start clock tracker for the current level
         levelStartTime = window.performance.now();
         moveDotRandomly();
         targetDot.style.display = 'block';
@@ -303,7 +299,6 @@ p.subtitle {
         const fieldHeight = gameField.clientHeight;
         const currentLevelData = levels[currentLevelIndex];
         
-        // Keep dots safely inside bounds based on their size
         const padding = currentLevelData.size + 10; 
         const randomX = Math.floor(Math.random() * (fieldWidth - padding * 2)) + padding;
         const randomY = Math.floor(Math.random() * (fieldHeight - padding * 2)) + padding;
