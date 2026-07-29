@@ -1,281 +1,315 @@
-#Cool Website
-By: EDWARD
-<!DOCTYPE html>
-<html lang="en">
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reflex Trainer - 5-Round Game</title>
-  <style>
-    :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --text-color: #f8fafc;
-      --accent-wait: #eab308;
-      --accent-ready: #22c55e;
-      --accent-early: #ef4444;
-      --accent-neutral: #3b82f6;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reflex Trainer - 5-Round Game</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --accent-wait: #eab308;
+            --accent-ready: #22c55e;
+            --accent-early: #ef4444;
+            --accent-neutral: #3b82f6;
+        }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+        }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-    .container {
-      width: 100%;
-      max-width: 600px;
-      text-align: center;
-    }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-      letter-spacing: 1px;
-    }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
 
-    p.subtitle {
-      color: #94a3b8;
-      margin-bottom: 25px;
-    }
+        p.subtitle {
+            color: #94a3b8;
+            margin-bottom: 25px;
+            font-size: 1rem;
+        }
 
-    .hud {
-      display: flex;
-      justify-content: space-between;
-      background: var(--card-bg);
-      padding: 15px 25px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      font-weight: 600;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-    }
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            background: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
 
-    .hud span {
-      color: #38bdf8;
-    }
+        .hud span {
+            color: #38bdf8;
+        }
 
-    .game-box {
-      height: 320px;
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.2s ease, transform 0.1s ease;
-      background-color: var(--card-bg);
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-      padding: 20px;
-    }
+        /* Game Interaction Box */
+        .game-box {
+            width: 100%;
+            height: 320px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.15s ease, transform 0.1s ease;
+            background-color: var(--card-bg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
 
-    .game-box:active {
-      transform: scale(0.98);
-    }
+        .game-box:active {
+            transform: scale(0.99);
+        }
 
-    .game-box h2 {
-      font-size: 2rem;
-      pointer-events: none;
-    }
+        .game-box h2 {
+            font-size: 2.2rem;
+            pointer-events: none;
+            margin-bottom: 15px;
+        }
 
-    .game-box p {
-      font-size: 1.1rem;
-      margin-top: 10px;
-      opacity: 0.9;
-      pointer-events: none;
-    }
+        .game-box p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            pointer-events: none;
+        }
 
-    /* States */
-    .state-start { background-color: var(--accent-neutral); }
-    .state-waiting { background-color: var(--accent-wait); color: #000; }
-    .state-ready { background-color: var(--accent-ready); color: #000; }
-    .state-early { background-color: var(--accent-early); }
+        /* 5 Dots Indicator Container */
+        .dots-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            pointer-events: none;
+        }
 
-    .results {
-      display: none;
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 30px;
-      margin-top: 20px;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
-    }
+        .dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: background-color 0.1s ease, box-shadow 0.1s ease;
+        }
 
-    .results h2 {
-      margin-bottom: 15px;
-      color: #38bdf8;
-    }
+        /* Active dot styles during sequence */
+        .dot.active {
+            background-color: #ef4444; /* Red lights charging up */
+            box-shadow: 0 0 15px #ef4444;
+            border-color: #f87171;
+        }
 
-    .history-list {
-      list-style: none;
-      margin: 15px 0;
-      text-align: left;
-    }
+        /* Ready state for dots */
+        .state-ready .dot {
+            background-color: var(--accent-ready);
+            box-shadow: 0 0 15px var(--accent-ready);
+            border-color: #4ade80;
+        }
 
-    .history-list li {
-      padding: 8px 12px;
-      border-bottom: 1px solid #334155;
-      display: flex;
-      justify-content: space-between;
-    }
+        /* State color variations for the box background */
+        .state-start { background-color: var(--accent-neutral); color: #ffffff; }
+        .state-waiting { background-color: #1e293b; color: #ffffff; } /* Dark during countdown */
+        .state-ready { background-color: var(--accent-ready); color: #000000; }
+        .state-early { background-color: var(--accent-early); color: #ffffff; }
+        .state-result { background-color: var(--accent-neutral); color: #ffffff; }
 
-    .btn-reset {
-      background-color: var(--accent-neutral);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 1rem;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: background-color 0.2s;
-    }
+        /* End Results Card */
+        .results-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            margin-top: 20px;
+        }
 
-    .btn-reset:hover {
-      background-color: #2563eb;
-    }
-  </style>
+        .results-card h2 {
+            margin-bottom: 15px;
+            color: #38bdf8;
+            font-size: 1.8rem;
+        }
+
+        .history-list {
+            list-style: none;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .history-list li {
+            padding: 10px 14px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+        }
+
+        .btn-reset {
+            background-color: var(--accent-neutral);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .btn-reset:hover {
+            background-color: #2563eb;
+        }
+        
+        .btn-reset:active {
+            transform: scale(0.96);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>⚡ Reflex Trainer</h1>
-    <p class="subtitle">Complete 5 rounds to test your average reaction time!</p>
+    <div class="container">
+        <h1>⚡ Reflex Trainer</h1>
+        <p class="subtitle">By: EDWARD</p>
 
-    <div class="hud">
-      <div>Round: <span id="current-round">0</span> / 5</div>
-      <div>Last Score: <span id="last-score">--</span></div>
+        <div class="hud">
+            <div>Round: <span id="current-round">0</span> / 5</div>
+            <div>Best: <span id="best-score">-- ms</span></div>
+        </div>
+
+        <!-- Interactive Game Box -->
+        <div id="game-box" class="game-box state-start">
+            <!-- 5 Dots Layout -->
+            <div class="dots-container">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <h2 id="box-title">Click to Start</h2>
+            <p id="box-desc">Complete all 5 rounds to see your score!</p>
+        </div>
+
+        <!-- End of Game Performance Breakdown -->
+        <div id="results" class="results-card hidden">
+            <h2>Game Complete!</h2>
+            <p id="average-score" style="font-size: 1.3rem; font-weight: bold; margin-bottom: 10px;">Average: -- ms</p>
+            <ul id="history-list" class="history-list"></ul>
+            <button class="btn-reset" onclick="resetGame()">Play Again</button>
+        </div>
     </div>
 
-    <div id="game-box" class="game-box state-start">
-      <h2 id="box-title">Click to Start</h2>
-      <p id="box-desc">Tests will run over 5 points/rounds</p>
-    </div>
+    <script>
+        const gameBox = document.getElementById('game-box');
+        const boxTitle = document.getElementById('box-title');
+        const boxDesc = document.getElementById('box-desc');
+        const currentRoundEl = document.getElementById('current-round');
+        const bestScoreEl = document.getElementById('best-score');
+        const resultsEl = document.getElementById('results');
+        const historyList = document.getElementById('history-list');
+        const averageScoreEl = document.getElementById('average-score');
+        const dots = document.querySelectorAll('.dot');
 
-    <div id="results" class="results">
-      <h2>Game Complete! 🏆</h2>
-      <p>Average Reaction Time: <strong id="avg-score" style="font-size: 1.5rem; color: #22c55e;">0 ms</strong></p>
-      
-      <ul id="history-list" class="history-list"></ul>
+        // Game Configuration variables
+        let state = 'start'; // start | waiting | ready | early | result
+        let currentRound = 0;
+        let startTime = 0;
+        let roundTimes = [];
+        let dotTimers = []; // Keeps track of interval loops for lighting dots
+        let greenLightTimer = null; 
 
-      <button class="btn-reset" onclick="resetGame()">Play Again</button>
-    </div>
-  </div>
-
-  <script>
-    const TOTAL_ROUNDS = 5;
-    let currentRound = 0;
-    let scores = [];
-    let timer = null;
-    let startTime = 0;
-    let state = 'IDLE'; // IDLE, WAITING, READY, EARLY, FINISHED
-
-    const gameBox = document.getElementById('game-box');
-    const boxTitle = document.getElementById('box-title');
-    const boxDesc = document.getElementById('box-desc');
-    const roundDisplay = document.getElementById('current-round');
-    const lastScoreDisplay = document.getElementById('last-score');
-    const resultsDiv = document.getElementById('results');
-    const historyList = document.getElementById('history-list');
-    const avgScoreDisplay = document.getElementById('avg-score');
-
-    function setBoxState(className, title, desc) {
-      gameBox.className = 'game-box ' + className;
-      boxTitle.textContent = title;
-      boxDesc.textContent = desc;
-    }
-
-    function startRound() {
-      state = 'WAITING';
-      setBoxState('state-waiting', 'Wait for Green...', 'Click as fast as you can when the box turns green!');
-      
-      // Random delay between 1.5s and 4s
-      const delay = Math.floor(Math.random() * 2500) + 1500;
-      
-      timer = setTimeout(() => {
-        state = 'READY';
-        startTime = Date.now();
-        setBoxState('state-ready', 'CLICK NOW!', 'GO GO GO!');
-      }, delay);
-    }
-
-    function handleBoxClick() {
-      if (state === 'IDLE') {
-        currentRound = 1;
-        scores = [];
-        roundDisplay.textContent = currentRound;
-        resultsDiv.style.display = 'none';
-        startRound();
-      } else if (state === 'WAITING') {
-        // Clicked too early!
-        clearTimeout(timer);
-        state = 'EARLY';
-        setBoxState('state-early', 'Too Soon!', 'You clicked before the box turned green. Click to retry round.');
-      } else if (state === 'EARLY') {
-        // Retry the current round
-        startRound();
-      } else if (state === 'READY') {
-        // Valid click
-        const reactionTime = Date.now() - startTime;
-        scores.push(reactionTime);
-        lastScoreDisplay.textContent = `${reactionTime} ms`;
-
-        if (currentRound < TOTAL_ROUNDS) {
-          currentRound++;
-          roundDisplay.textContent = currentRound;
-          startRound();
-        } else {
-          finishGame();
+        // Load personal best tracking from storage
+        let bestScore = localStorage.getItem('bestScore') ? parseInt(localStorage.getItem('bestScore')) : null;
+        if (bestScore) {
+            bestScoreEl.textContent = `${bestScore} ms`;
         }
-      }
-    }
 
-    function finishGame() {
-      state = 'FINISHED';
-      gameBox.style.display = 'none';
-      resultsDiv.style.display = 'block';
+        // Primary interactive click handler
+        gameBox.addEventListener('click', () => {
+            if (state === 'start' || state === 'result' || state === 'early') {
+                startRound();
+            } else if (state === 'waiting') {
+                triggerEarlyClick();
+            } else if (state === 'ready') {
+                handleSuccessfulClick();
+            }
+        });
 
-      // Calculate Average
-      const total = scores.reduce((sum, val) => sum + val, 0);
-      const avg = Math.round(total / scores.length);
+        function setUIState(newState) {
+            gameBox.className = `game-box state-${newState}`;
+            state = newState;
+        }
 
-      avgScoreDisplay.textContent = `${avg} ms`;
+        function clearAllIntervals() {
+            dotTimers.forEach(t => clearTimeout(t));
+            dotTimers = [];
+            clearTimeout(greenLightTimer);
+        }
 
-      // Render Breakdown
-      historyList.innerHTML = '';
-      scores.forEach((score, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span>Round ${index + 1}</span> <strong>${score} ms</strong>`;
-        historyList.appendChild(li);
-      });
-    }
+        function clearDotsColors() {
+            dots.forEach(dot => dot.classList.remove('active'));
+        }
 
-    function resetGame() {
-      state = 'IDLE';
-      currentRound = 0;
-      roundDisplay.textContent = '0';
-      lastScoreDisplay.textContent = '--';
-      gameBox.style.display = 'flex';
-      resultsDiv.style.display = 'none';
-      setBoxState('state-start', 'Click to Start', 'Tests will run over 5 points/rounds');
-    }
+        function startRound() {
+            clearAllIntervals();
+            clearDotsColors();
+            
+            if (currentRound >= 5) {
+                currentRound = 0;
+                roundTimes = [];
+                resultsEl.classList.add('hidden');
+            }
 
-    gameBox.addEventListener('click', handleBoxClick);
-  </script>
-</body>
-</html>
+            currentRound++;
+            currentRoundEl.textContent = currentRound;
+            
+            setUIState('waiting');
+            boxTitle.textContent = "Hold on...";
+            boxDesc.textContent = "Wait for the dots to fill and turn green!";
+
+            // Light up the 5 dots sequentially (1 every 500ms)
+            for (let i = 0; i < 5; i++) {
+                let timerId = setTimeout(() => {
+                    if (state === 'waiting') {
+                        dots[i].classList.add('active');
+                    }
+                }, (i + 1) * 500);
+                dotTimers.push(timerId);
+            }
+
+            // After all 5 dots light up, add a random delay between 1 to 3 seconds to turn green
+            const totalSequenceTime = 2500; 
+            const randomDelay = totalSequenceTime + (Math.random() * 2000 + 1000);
+
+            greenLightTimer = setTimeout(() => {
+                if (state === 'waiting') {
+                    triggerGreenLight();
+                }
